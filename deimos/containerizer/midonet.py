@@ -132,10 +132,10 @@ def wire_container_to_midonet(container_id, bridge_id="78488c47-d1de-4d16-a27a-4
         _bind_if_to_vport(generated_interface, vport.get_id())
     except webob.exc.HTTPNotFound as err:
         sys.stderr.write(str(err) + "\n")
-        sys.exit(2)
+        raise
     except Exception as ex:
         sys.stderr.write(str(ex) + "\n")
-        sys.exit(2)
+        raise
 
 def _add_if_to_dp(interface, container_id):
     cmd = ["sudo", "bash", MM_DOCKER, "add-if", interface, container_id]
@@ -144,7 +144,7 @@ def _add_if_to_dp(interface, container_id):
     sys.stderr.write(stdout_data + "\n")
     if p.returncode != 0:
         sys.stderr.write(stderr_data + "\n")
-        sys.exit(2)
+        raise Exception(stderr_data)
 
 def _bind_if_to_vport(interface, vport_id):
     with open("/etc/midonet_host_id.properties") as f:
@@ -157,5 +157,5 @@ def _bind_if_to_vport(interface, vport_id):
             host_interface_port.create()
         except Exception as e:
             sys.stderr.write(str(e) + "\n")
-            sys.exit(2)
+            raise
         
