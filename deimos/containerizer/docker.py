@@ -33,6 +33,13 @@ from deimos._struct import _Struct
 import deimos.state
 import deimos.sig
 
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+fh = logging.FileHandler(filename='/tmp/deimos_docker.txt')
+fh.setLevel(logging.DEBUG)
+fh.setFormatter(formatter)
+logger.addHandler(fh)
 
 class Docker(Containerizer, _Struct):
 
@@ -145,6 +152,15 @@ class Docker(Containerizer, _Struct):
                                                                 stderr=e)
                     state.pid(self.runner.pid)
                     state.await_cid()
+                    log.debug("Wiring the container to MidoNet")
+                    import traceback
+                    try:
+                        from deimos.containerizer import midonet
+                        midonet.wire_container_to_midonet(state.docker_id)
+                        log.debug("Successfully wired the container to MidoNet bridge")
+                    except Exception as ex:
+                        log.error(traceback.format_exc())
+
                     state.push()
                     lk_w = state.lock("wait", LOCK_EX)
                     lk_l.unlock()
