@@ -79,6 +79,7 @@ class Docker(Containerizer, _Struct):
         log.info("image  = %s", image)
         run_options += ["--sig-proxy"]
         run_options += ["--rm"]       # This is how we ensure container cleanup
+        run_options += ["--net=none"]
         run_options += ["--cidfile", state.resolve("cid")]
 
         place_uris(launchy, self.shared_dir, self.optimistic_unpack)
