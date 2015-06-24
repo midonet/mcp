@@ -42,3 +42,8 @@ nosetests.xml
 
 # Packaging
 toor
+
+# mcp specific files
+*~
+.deploy
+slaves
