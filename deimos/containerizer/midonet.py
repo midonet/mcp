@@ -29,6 +29,7 @@ class Session(object):
         self.tenant_id = None
         self.tenant_stack = []
         self.enable_alias_manager = True
+        self.do_auth = False
         self.do_eval = False
         self.debug = False
 
@@ -90,61 +91,12 @@ class Session(object):
         if os.environ.has_key('MIDO_TENANT'):
             self.tenant_id = os.environ['MIDO_TENANT']
 
-    def _load_from_args(self):
-        from optparse import OptionParser
-        parser = OptionParser()
-        parser.add_option("-A", "--no-auth", dest="skip_auth",
-                            action="store_true",
-                            help="Skip authentication")
-        parser.add_option("--midonet-url", dest="api_url",
-                            help="Midonet API server URL", metavar="URL")
-        parser.add_option("-u", "--user", dest="username",
-                            help="Username", metavar="USERNAME")
-        parser.add_option("-i", "--project-id", dest="project_id",
-                          help="Midonet Project ID", metavar="PROJECT_ID")
-        parser.add_option("--tenant", dest="tenant",
-                            help="Tenant id", metavar="UUID")
-        parser.add_option("-e", "--eval", dest="do_eval", action="store_true",
-                            help="Evaluate a single command, given at the end "+
-                                 "of the argument list")
-        parser.add_option("-p", "--password", dest="ask_for_password",
-                            help="Ask for password interactively",
-                            action="store_true")
-        parser.add_option("-d", "--debug", dest="debug",
-                            help="Enable debugging",
-                            action="store_true")
-        (options, args) = parser.parse_args()
-        if not options.do_eval and args is not None and len(args) > 0:
-            raise Exception("Unrecognized command")
-        if options.do_eval:
-            self.command = " ".join(args)
-            self.do_eval = True
-        if not options.skip_auth and options.ask_for_password and \
-                sys.__stdin__.isatty():
-            from getpass import getpass
-            self.password = getpass()
-        if options.api_url is not None:
-            self.api_url = options.api_url
-        if options.username is not None:
-            self.username = options.username
-        if options.project_id is not None:
-            self.project_id = options.project_id
-        if options.tenant is not None:
-            self.tenant_id = options.tenant
-        if not sys.__stdin__.isatty() or options.do_eval:
-            self.enable_alias_manager = False
-        self.do_auth = not options.skip_auth
-        if options.debug:
-            logging.getLogger().setLevel(logging.DEBUG)
-            self.debug = True
-
     def load(self):
         logging.basicConfig()
         logging.getLogger().setLevel(logging.CRITICAL)
 
         self._load_from_config_file()
         self._load_from_env()
-        self._load_from_args()
 
         if self.api_url is None:
             raise Exception("Missing: Midonet API URL")
