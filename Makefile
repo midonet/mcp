@@ -48,3 +48,7 @@ prep-ubuntu:
 	sudo apt-get install ruby-dev python-pip python-dev libz-dev protobuf-compiler
 	sudo gem install fpm
 	sudo pip install bbfreeze
+
+.PHONY:	deploy
+deploy:
+	sh scripts/deploy.sh
