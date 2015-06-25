@@ -10,6 +10,7 @@ import subprocess
 import sys
 import threading
 import time
+import traceback
 
 try:                  # Prefer system installation of Mesos protos if available
     from mesos_pb2 import *
@@ -22,6 +23,7 @@ import deimos.cgroups
 from deimos.cmd import Run
 import deimos.config
 from deimos.containerizer import *
+from deimos.containerizer import midonet
 import deimos.docker
 from deimos.err import Err
 import deimos.logger
@@ -153,11 +155,19 @@ class Docker(Containerizer, _Struct):
                     state.pid(self.runner.pid)
                     state.await_cid()
                     log.debug("Wiring the container to MidoNet")
-                    import traceback
                     try:
-                        from deimos.containerizer import midonet
-                        midonet.wire_container_to_midonet(state.docker_id)
-                        log.debug("Successfully wired the container to MidoNet bridge")
+                        env_dict = dict(env)
+                        bridge_id = env_dict.get(
+                            "MIDONET_BRIDGE_ID",
+                            "78488c47-d1de-4d16-a27a-4e6419dc4f88")
+                        container_id = state.docker_id
+                        ip_addr = env_dict.get(
+                            "MIDONET_IP_ADDRESS",
+                            "192.168.100.42")
+                        midonet.wire_container_to_midonet(
+                            container_id, bridge_id, ip_addr)
+                        log.debug("Successfully wired the container %s to MidoNet " \
+                                  "bridge %s", container_id, bridge_id)
                     except Exception as ex:
                         log.error(traceback.format_exc())
 
