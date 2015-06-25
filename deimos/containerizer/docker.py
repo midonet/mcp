@@ -301,11 +301,13 @@ class Docker(Containerizer, _Struct):
         state.await_launch()
         lk_d = state.lock("destroy", LOCK_EX)
         if state.exit() is None:
-            log.debug("Unwiring the container from MidoNet")
+            container_id = state.docker_id
+            log.debug("Unwiring the container %s from MidoNet", container_id)
             try:
-                from deimos.containerizer import midonet
-                midonet.unwire_container_from_midonet(state.docker_id)
-                log.debug("Successfully unwired the container from MidoNet bridge")
+                log.info("state_root = %s", dir(state))
+                midonet.unwire_container_from_midonet(container_id)
+                log.debug("Successfully unwired the container %s from MidoNet " \
+                          "bridge", container_id)
             except Exception as ex:
                 log.error(traceback.format_exc())
             Run()(deimos.docker.stop(state.cid()))
@@ -340,11 +342,13 @@ class Docker(Containerizer, _Struct):
         if self.state is not None and self.state.cid() is not None:
             cid = self.state.cid()
             log.info("Trying to stop Docker container: %s", cid)
-            log.debug("Unwiring the container %s from MidoNet", state.docker_id)
+            container_id = self.state.docker_id
+            log.debug("Unwiring the container %s from MidoNet", container_id)
             try:
-                from deimos.containerizer import midonet
-                midonet.unwire_container_from_midonet(state.docker_id)
-                log.debug("Successfully unwired the container from MidoNet bridge")
+                log.info("state = %s", dir(self.state))
+                midonet.unwire_container_from_midonet(container_id)
+                log.debug("Successfully unwired the container %s from MidoNet "\
+                          "bridge", container_id)
             except Exception as ex:
                 log.error(traceback.format_exc())
             try:
