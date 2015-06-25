@@ -121,14 +121,14 @@ session = Session()
 session.load()
 client = session.connect()
 
-def wire_container_to_midonet(container_id, bridge_id="78488c47-d1de-4d16-a27a-4e6419dc4f88"):
+def wire_container_to_midonet(container_id, bridge_id, ip_addr=None):
     try:
         bridge = client.get_bridge(bridge_id)
         vport = client.add_bridge_port(bridge)
         vport = vport.create()
         
         interface_name = INTERFACE_POSTFIX
-        _add_if_to_dp(interface_name, container_id)
+        _add_if_to_dp(interface_name, container_id, ip_addr)
         
         generated_interface = container_id[0:8] + interface_name[0:5]
         _bind_if_to_vport(generated_interface, vport.get_id())
@@ -139,8 +139,10 @@ def wire_container_to_midonet(container_id, bridge_id="78488c47-d1de-4d16-a27a-4
         sys.stderr.write(str(ex) + "\n")
         raise
 
-def _add_if_to_dp(interface, container_id):
+def _add_if_to_dp(interface, container_id, ip_addr=None):
     cmd = ["sudo", "bash", MM_DOCKER, "add-if", interface, container_id]
+    if ip_addr:
+        cmd.append(ip_addr)
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout_data, stderr_data = p.communicate()
     sys.stderr.write(stdout_data + "\n")
