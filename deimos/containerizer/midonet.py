@@ -161,3 +161,38 @@ def _bind_if_to_vport(interface, vport_id):
             sys.stderr.write(str(e) + "\n")
             raise
         
+def unwire_container_from_midonet(container_id, bridge_id="78488c47-d1de-4d16-a27a-4e6419dc4f88"):
+    try:
+        bridge = client.get_bridge(bridge_id)
+        vport_list = bridge.get_ports()
+        container_id_prefix = container_id[0:8]
+        vport = [vp for vp in vport_list
+                 if (vp.get_interface_name() is not None) and
+                 (vp.get_interface_name()[0:8] == container_id_prefix)][0]
+        vport_id = vport.get_id()
+        with open(HOST_ID_FILE) as f:
+            lines = f.readlines()
+            host_id = lines[-1].split("=")[1].strip()
+            try:
+                host = client.get_host(host_id)
+                host_interface_port_list = host.get_ports()
+                host_interface_port = [p for p in host_interface_port_list
+                                       if p.get_port_id() == vport_id][0]
+                host_interface_port.delete()
+            except Exception as e:
+                sys.stderr.write(str(e) + "\n")
+                raise
+        # interface_name = container_id_prefix + INTERFACE_POSTFIX
+        _remove_if_from_dp(INTERFACE_POSTFIX, container_id)
+    except Exception as e:
+        sys.stderr.write(str(e) + "\n")
+        raise
+
+def _remove_if_from_dp(interface, container_id):
+    cmd = ["sudo", "bash", MM_DOCKER, "del-if", interface, container_id]
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout_data, stderr_data = p.communicate()
+    sys.stderr.write(stdout_data + "\n")
+    if p.returncode != 0:
+        sys.stderr.write(stderr_data + "\n")
+        raise Exception(stderr_data)
