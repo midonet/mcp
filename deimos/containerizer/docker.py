@@ -291,6 +291,13 @@ class Docker(Containerizer, _Struct):
         state.await_launch()
         lk_d = state.lock("destroy", LOCK_EX)
         if state.exit() is None:
+            log.debug("Unwiring the container from MidoNet")
+            try:
+                from deimos.containerizer import midonet
+                midonet.unwire_container_from_midonet(state.docker_id)
+                log.debug("Successfully unwired the container from MidoNet bridge")
+            except Exception as ex:
+                log.error(traceback.format_exc())
             Run()(deimos.docker.stop(state.cid()))
         else:
             log.info("Container is stopped")
@@ -323,6 +330,13 @@ class Docker(Containerizer, _Struct):
         if self.state is not None and self.state.cid() is not None:
             cid = self.state.cid()
             log.info("Trying to stop Docker container: %s", cid)
+            log.debug("Unwiring the container %s from MidoNet", state.docker_id)
+            try:
+                from deimos.containerizer import midonet
+                midonet.unwire_container_from_midonet(state.docker_id)
+                log.debug("Successfully unwired the container from MidoNet bridge")
+            except Exception as ex:
+                log.error(traceback.format_exc())
             try:
                 Run()(deimos.docker.stop(cid))
             except subprocess.CalledProcessError:
