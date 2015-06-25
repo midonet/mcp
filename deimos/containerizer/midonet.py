@@ -114,6 +114,8 @@ class Session(object):
 
 MM_DOCKER = "/usr/local/bin/mcp/mm-docker.sh"
 MM_CTL="mm-ctl"
+HOST_ID_FILE = "/etc/midonet_host_id.properties"
+INTERFACE_POSTFIX = "-veth"
 
 session = Session()
 session.load()
@@ -125,7 +127,7 @@ def wire_container_to_midonet(container_id, bridge_id="78488c47-d1de-4d16-a27a-4
         vport = client.add_bridge_port(bridge)
         vport = vport.create()
         
-        interface_name = "-veth"
+        interface_name = INTERFACE_POSTFIX
         _add_if_to_dp(interface_name, container_id)
         
         generated_interface = container_id[0:8] + interface_name[0:5]
@@ -147,7 +149,7 @@ def _add_if_to_dp(interface, container_id):
         raise Exception(stderr_data)
 
 def _bind_if_to_vport(interface, vport_id):
-    with open("/etc/midonet_host_id.properties") as f:
+    with open(HOST_ID_FILE) as f:
         lines = f.readlines()
         host_id = lines[-1].split("=")[1].strip()
         try:
