@@ -122,6 +122,11 @@ session.load()
 client = session.connect()
 
 def wire_container_to_midonet(container_id, bridge_id, ip_addr=None):
+    """Creates a veth pair, bind one end to the vport newly created on
+    the bridge which id is the given `bridge_id` and put another end inside the
+    container which id is the given `container_id` assigning the `ip_addr` to
+    it.
+    """
     try:
         bridge = client.get_bridge(bridge_id)
         vport = client.add_bridge_port(bridge)
@@ -164,6 +169,8 @@ def _bind_if_to_vport(interface, vport_id):
             raise
         
 def unwire_container_from_midonet(container_id):
+    """Unbinds the veth endpoint from the datapath and delte the veth pair.
+    """
     try:
         vport_list= client.get_ports(dict())
         container_id_prefix = container_id[0:8]
