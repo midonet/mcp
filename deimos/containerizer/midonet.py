@@ -163,10 +163,9 @@ def _bind_if_to_vport(interface, vport_id):
             sys.stderr.write(str(e) + "\n")
             raise
         
-def unwire_container_from_midonet(container_id, bridge_id="78488c47-d1de-4d16-a27a-4e6419dc4f88"):
+def unwire_container_from_midonet(container_id):
     try:
-        bridge = client.get_bridge(bridge_id)
-        vport_list = bridge.get_ports()
+        vport_list= client.get_ports(dict())
         container_id_prefix = container_id[0:8]
         vport = [vp for vp in vport_list
                  if (vp.get_interface_name() is not None) and
