@@ -49,10 +49,10 @@ add_if() {
         exit 1
     fi
 
-    if [ "$#" -eq 2 ]; then
+    if [ "$#" -eq 2 -o "$#" -eq 3 ]; then
         DATAPATH="midonet"
     fi
-    if [ "$#" -eq 3 ]; then
+    if [ "$#" -eq 4 ]; then
         DATAPATH="$1"
         shift
     fi
@@ -96,7 +96,7 @@ add_if() {
     ip netns exec "$PID" ip link set "$INTERFACE" up
 
     if [ -n "$ADDRESS" ]; then
-        ip netns exec $PID ip addr add "$ADDRESS" dev "${INTERFACE}"
+        ip netns exec "$PID" ip addr add "$ADDRESS" dev "${INTERFACE}"
     fi
 
     delete_netns_symlink
