@@ -115,7 +115,7 @@ class Session(object):
 MM_DOCKER = "/usr/local/bin/mcp/mm-docker.sh"
 MM_CTL="mm-ctl"
 HOST_ID_FILE = "/etc/midonet_host_id.properties"
-INTERFACE_POSTFIX = "-veth"
+DEFAULT_INTERFACE = "eth0"
 
 session = Session()
 session.load()
@@ -127,7 +127,7 @@ def wire_container_to_midonet(container_id, bridge_id, ip_addr=None):
         vport = client.add_bridge_port(bridge)
         vport = vport.create()
         
-        interface_name = INTERFACE_POSTFIX
+        interface_name = DEFAULT_INTERFACE
         _add_if_to_dp(interface_name, container_id, ip_addr)
         
         generated_interface = container_id[0:8] + interface_name[0:5]
@@ -184,8 +184,7 @@ def unwire_container_from_midonet(container_id, bridge_id="78488c47-d1de-4d16-a2
             except Exception as e:
                 sys.stderr.write(str(e) + "\n")
                 raise
-        # interface_name = container_id_prefix + INTERFACE_POSTFIX
-        _remove_if_from_dp(INTERFACE_POSTFIX, container_id)
+        _remove_if_from_dp(DEFAULT_INTERFACE, container_id)
     except Exception as e:
         sys.stderr.write(str(e) + "\n")
         raise
