@@ -35,6 +35,10 @@ $PSSH -h $SLAVE_LIST -l$USER -t $TIMEOUT -i \
 $PSSH -h $SLAVE_LIST -l$USER -t $TIMEOUT -i \
     "sudo chmod +x ${CONTAINERIZER_HOME}/${CONTAINERIZER}"
 $PSSH -h $SLAVE_LIST -l$USER -t $TIMEOUT -i \
+    "sudo sh -c 'cat > ${CONTAINERIZER_HOME}/deimos/VERSION <<EOF
+0.4.0
+EOF'"
+$PSSH -h $SLAVE_LIST -l$USER -t $TIMEOUT -i \
 	"sudo sh -c 'echo ${CONTAINERIZER_HOME}/${CONTAINERIZER} > \
         /etc/mesos-slave/containerizer_path'"
 $PSSH -h $SLAVE_LIST -l$USER -t $TIMEOUT -i \
