@@ -11,7 +11,8 @@
   "mem": 512,
   "env": {
       "MIDONET_BRIDGE_ID": "78488c47-d1de-4d16-a27a-4e6419dc4f88",
-      "MIDONET_IP_ADDRESS": "192.168.1.42"
+      "MIDONET_IP_ADDRESS": "192.168.1.42/24",
+      "MIDONET_DEFAULT_GATEWAY": "192.168.1.1"
   },
   "uris": [],
   "cmd": "while sleep 10; do date -u +%T; done"
