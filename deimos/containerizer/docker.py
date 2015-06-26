@@ -88,7 +88,6 @@ class Docker(Containerizer, _Struct):
         log.info("image  = %s", image)
         run_options += ["--sig-proxy"]
         run_options += ["--rm"]       # This is how we ensure container cleanup
-        run_options += ["--net=none"]
         run_options += ["--cidfile", state.resolve("cid")]
 
         place_uris(launchy, self.shared_dir, self.optimistic_unpack)
@@ -106,6 +105,10 @@ class Docker(Containerizer, _Struct):
         cpus, mems = launchy.cpu_and_mem
         env = launchy.env
         run_options += options
+
+        env_dict = dict(env)
+        if env_dict.get("MIDONET_BRIDGE_ID", None):
+            run_options += ["--net=none"]
 
         # We need to wrap the call to Docker in a call to the Mesos executor
         # if no executor is passed as part of the task. We need to pass the
@@ -156,7 +159,6 @@ class Docker(Containerizer, _Struct):
                     state.await_cid()
                     log.debug("Wiring the container to MidoNet")
                     try:
-                        env_dict = dict(env)
                         bridge_id = env_dict.get(
                             "MIDONET_BRIDGE_ID",
                             "78488c47-d1de-4d16-a27a-4e6419dc4f88")
