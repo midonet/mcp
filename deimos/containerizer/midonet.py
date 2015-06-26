@@ -121,7 +121,7 @@ session = Session()
 session.load()
 client = session.connect()
 
-def wire_container_to_midonet(container_id, bridge_id, ip_addr=None):
+def wire_container_to_midonet(container_id, bridge_id, ip_addr=None, default_gw=None):
     """Creates a veth pair, bind one end to the vport newly created on
     the bridge which id is the given `bridge_id` and put another end inside the
     container which id is the given `container_id` assigning the `ip_addr` to
@@ -133,7 +133,7 @@ def wire_container_to_midonet(container_id, bridge_id, ip_addr=None):
         vport = vport.create()
         
         interface_name = DEFAULT_INTERFACE
-        _add_if_to_dp(interface_name, container_id, ip_addr)
+        _add_if_to_dp(interface_name, container_id, ip_addr, default_gw)
         
         generated_interface = container_id[0:8] + interface_name[0:5]
         _bind_if_to_vport(generated_interface, vport.get_id())
@@ -144,10 +144,13 @@ def wire_container_to_midonet(container_id, bridge_id, ip_addr=None):
         sys.stderr.write(str(ex) + "\n")
         raise
 
-def _add_if_to_dp(interface, container_id, ip_addr=None):
+def _add_if_to_dp(interface, container_id, ip_addr=None, default_gw=None):
     cmd = ["sudo", "bash", MM_DOCKER, "add-if", interface, container_id]
     if ip_addr:
         cmd.append(ip_addr)
+    if default_gw:
+        cmd.insert(4, "midonet")
+        cmd.append(default_gw)
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout_data, stderr_data = p.communicate()
     sys.stderr.write(stdout_data + "\n")
