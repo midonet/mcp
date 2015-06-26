@@ -39,6 +39,8 @@ $PSSH -h $SLAVE_LIST -l$USER -t $TIMEOUT -i \
 0.4.0
 EOF'"
 $PSSH -h $SLAVE_LIST -l$USER -t $TIMEOUT -i \
+    sudo pip install -e "$CONTAINERIZER_HOME"
+$PSSH -h $SLAVE_LIST -l$USER -t $TIMEOUT -i \
 	"sudo sh -c 'echo ${CONTAINERIZER_HOME}/${CONTAINERIZER} > \
         /etc/mesos-slave/containerizer_path'"
 $PSSH -h $SLAVE_LIST -l$USER -t $TIMEOUT -i \
