@@ -52,7 +52,7 @@ add_if() {
     if [ "$#" -eq 2 -o "$#" -eq 3 ]; then
         DATAPATH="midonet"
     fi
-    if [ "$#" -eq 4 ]; then
+    if [ "$#" -gt 3 ]; then
         DATAPATH="$1"
         shift
     fi
@@ -60,6 +60,7 @@ add_if() {
     INTERFACE="$1"
     CONTAINER="$2"
     ADDRESS="$3"
+    DEFAULT_GATEWAY="$4"
 
     if !((mm_dpctl --list-dps | grep "$DATAPATH" > /dev/nul 2>&1) ||
             (mm_dpctl --add-dp "$DATAPATH")); then
@@ -97,6 +98,10 @@ add_if() {
 
     if [ -n "$ADDRESS" ]; then
         ip netns exec "$PID" ip addr add "$ADDRESS" dev "${INTERFACE}"
+    fi
+
+    if [ -n "$DEFAULT_GATEWAY" ]; then
+        ip netns exec "$PID" ip route add default via "$DEFAULT_GATEWAY" dev "$INTERFACE"
     fi
 
     delete_netns_symlink
@@ -167,16 +172,19 @@ ${COMMAND}: Integrates the network interfaces into MidoNet.
 usage: ${COMMAND} COMMAND
 
 Commands:
-  add-if [DATAPATH] INTERFACE CONTAINER [IPv4_ADDRESS/NET_MASK]
+  add-if [DATAPATH] INTERFACE CONTAINER [IPv4_ADDRESS/NET_MASK] [DEFAULT_GATEWAY]
           Adds INTERFACE inside CONTAINER and connects it as a port in the given
           DATAPATH or "midonet" datapath if it's not provided. It also adds the
           IPv4 address to the interface if it's given with "ip addr add"
-          command.
+          command. If DEFAULT_GATEWAY is given, it sets the default gateway with
+          the given IP address and [DATAPATH] MUST BE given along with it in the
+          first argument for this subcommand.
 
           Examples:
             ${COMMAND} add-if dp0 veth8a72ecc1-5a 5506de2b643b 192.168.100.1
             ${COMMAND} add-if veth8a72ecc1-5a 5506de2b643b 192.168.100.1/32
             ${COMMAND} add-if veth8a72ecc1-5a 5506de2b643b
+            ${COMMAND} add-if dp0 veth8a72ecc1-5a 5506de2b643b 192.168.1.42/24 192.168.1.1
 
   del-if [DATAPATH] INTERFACE CONTAINER
           Deletes INTERFACE inside CONTAINER and removes its connection to the
