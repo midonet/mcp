@@ -164,8 +164,9 @@ class Docker(Containerizer, _Struct):
                         ip_addr = env_dict.get(
                             "MIDONET_IP_ADDRESS",
                             "192.168.100.42")
+                        default_gw = env_dict.get("MIDONET_DEFAULT_GATEWAY", None)
                         midonet.wire_container_to_midonet(
-                            container_id, bridge_id, ip_addr)
+                            container_id, bridge_id, ip_addr, default_gw)
                         log.debug("Successfully wired the container %s to MidoNet " \
                                   "bridge %s", container_id, bridge_id)
                     except Exception as ex:
