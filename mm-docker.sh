@@ -78,7 +78,7 @@ add_if() {
 
     # Create a veth pair.
     ID=`uuidgen | sed 's/-//g'`
-    IFNAME="${CONTAINER:0:8}${INTERFACE:0:5}"
+    IFNAME="${CONTAINER:0:8}-${INTERFACE:0:5}"
     sudo ip link add "${IFNAME}" type veth peer name "${IFNAME}_c"
 
     # Add one end of veth to the datapath.

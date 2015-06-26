@@ -135,7 +135,7 @@ def wire_container_to_midonet(container_id, bridge_id, ip_addr=None, default_gw=
         interface_name = DEFAULT_INTERFACE
         _add_if_to_dp(interface_name, container_id, ip_addr, default_gw)
         
-        generated_interface = container_id[0:8] + interface_name[0:5]
+        generated_interface = '-'.join([container_id[0:8], interface_name[0:5]])
         _bind_if_to_vport(generated_interface, vport.get_id())
     except webob.exc.HTTPNotFound as err:
         sys.stderr.write(str(err) + "\n")
