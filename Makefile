@@ -52,3 +52,6 @@ prep-ubuntu:
 .PHONY:	deploy
 deploy:
 	sh scripts/deploy.sh
+
+deploy_example_app:
+	curl -X POST -H "Content-Type: application/json" http://119.15.125.216:8080/v2/groups -d@example_cluster_alex.json
