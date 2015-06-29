@@ -13,6 +13,7 @@ Prerequisites
 -------------
 
 * [protobuf (== 2.6.1)](https://pypi.python.org/pypi/protobuf/2.6.1)
+* [python-midonetclinet](https://github.com/midonet/python-midonetclient)
 
 Deployment to slaves
 --------------------
