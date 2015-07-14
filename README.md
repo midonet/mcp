@@ -23,7 +23,7 @@ file, `slaves` and put a host names or addresses in each line.
 
 
 ```
-$ make deploy  # deploys MCP to slaves listed in `salves`
+$ make deploy  # deploys MCP to slaves listed in `slaves`
 ```
 
 License
